@@ -1,0 +1,99 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    # Set up environment variables for the backend
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PORT: 4000
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    
+    # Install root dependencies (Playwright)
+    - name: Install root dependencies
+      run: npm ci
+    
+    # Install frontend dependencies
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    # Install backend dependencies
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+    
+    # Build backend
+    - name: Build backend
+      working-directory: ./backend
+      run: npm run build
+    
+    # Build frontend
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+    
+    # Start backend server in background
+    - name: Start backend server
+      working-directory: ./backend
+      run: |
+        npm run start &
+        echo $! > backend.pid
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        PORT: 4000
+    
+    # Start frontend server in background
+    - name: Start frontend server
+      working-directory: ./frontend
+      run: |
+        npm run preview -- --port 3000 --host &
+        echo $! > frontend.pid
+    
+    # Wait for servers to be ready
+    - name: Wait for backend to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:4000/api/products; do sleep 2; done'
+    
+    - name: Wait for frontend to be ready
+      run: |
+        timeout 60 bash -c 'until curl -f http://localhost:3000; do sleep 2; done'
+    
+    # Install Playwright browsers
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    
+    # Run Playwright tests
+    - name: Run Playwright tests
+      run: npx playwright test
+      env:
+        CI: true
+    
+    # Upload test results
+    - uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+    
+    # Cleanup: Stop servers
+    - name: Stop servers
+      if: always()
+      run: |
+        if [ -f backend/backend.pid ]; then kill $(cat backend/backend.pid) || true; fi
+        if [ -f frontend/frontend.pid ]; then kill $(cat frontend/frontend.pid) || true; fi
