@@ -13,5 +13,9 @@
     "install:all": "npm install --prefix frontend && npm install --prefix backend",
     "docker:up": "docker-compose up --build",
     "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^24.10.2"
   }
 }
