@@ -4,6 +4,28 @@ import type { Product, ApiResponse } from '../types.js';
 
 const router = Router();
 
+/**
+ * @swagger
+ * /api/products:
+ *   get:
+ *     summary: Get all products
+ *     description: Retrieve a list of all products from the database
+ *     tags:
+ *       - Products
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved list of products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProductListResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
 router.get('/', async (_req: Request, res: Response<ApiResponse<Product[]>>) => {
   const { data, error } = await supabase
     .from('products')
@@ -19,6 +41,43 @@ router.get('/', async (_req: Request, res: Response<ApiResponse<Product[]>>) => 
   res.json({ data, error: null });
 });
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   get:
+ *     summary: Get a product by ID
+ *     description: Retrieve a single product by its unique identifier
+ *     tags:
+ *       - Products
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: UUID of the product to retrieve
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         example: 123e4567-e89b-12d3-a456-426614174000
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the product
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ProductResponse'
+ *       404:
+ *         description: Product not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponse'
+ */
 router.get('/:id', async (req: Request<{ id: string }>, res: Response<ApiResponse<Product>>) => {
   const { id } = req.params;
 

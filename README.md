@@ -72,6 +72,8 @@ npm run dev
 
 Server runs at http://localhost:4000
 
+**API Documentation:** http://localhost:4000/api-docs
+
 ### Frontend
 
 ```bash
@@ -99,59 +101,14 @@ App runs at http://localhost:3000
 4. Access the app:
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:4000
+   - API Documentation: http://localhost:4000/api-docs
 
-## API Endpoints
+## API Documentation
 
-### GET /api/products
+This project uses Swagger/OpenAPI for interactive API documentation. Once the backend server is running, you can access:
 
-Returns all products.
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": "550e8400-e29b-41d4-a716-446655440001",
-      "name": "Classic Leather Wallet",
-      "description": "Handcrafted genuine leather wallet...",
-      "price": 49.99,
-      "image_url": "https://picsum.photos/seed/wallet/400/300",
-      "created_at": "2024-01-01T00:00:00.000Z"
-    }
-  ],
-  "error": null
-}
-```
-
-### GET /api/products/:id
-
-Returns a single product by ID.
-
-**Response:**
-```json
-{
-  "data": {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "Classic Leather Wallet",
-    "description": "Handcrafted genuine leather wallet with multiple card slots and a coin pocket. Timeless design that ages beautifully.",
-    "price": 49.99,
-    "image_url": "https://picsum.photos/seed/wallet/400/300",
-    "created_at": "2024-01-01T00:00:00.000Z"
-  },
-  "error": null
-}
-```
-
-### GET /api/health
-
-Health check endpoint.
-
-**Response:**
-```json
-{
-  "status": "ok"
-}
-```
+- **Swagger UI:** http://localhost:4000/api-docs - Interactive API documentation where you can test endpoints
+- **OpenAPI Spec:** http://localhost:4000/api-docs.json - Raw OpenAPI JSON specification
 
 ## Testability
 
