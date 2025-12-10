@@ -15,8 +15,9 @@ This document outlines the test scenarios executed using Playwright MCP to valid
 
 ## Test Scenarios
 
-### Scenario 1: Homepage Initial Load and Product Browsing
+### Scenario 1: Homepage Initial Load and Product Browsing ✓
 **Objective**: Verify the homepage loads correctly and displays all products.
+**Automation Status**: ✓ Automated in `tests/homepage.spec.ts`
 
 **Steps**:
 1. Navigate to `http://localhost:3000/`
@@ -165,13 +166,15 @@ This document outlines the test scenarios executed using Playwright MCP to valid
 ### Overall Status: ✅ PASS
 
 ### Test Coverage
-- ✅ Homepage product browsing (Scenario 1)
-- ✅ Product detail page navigation (Scenario 2)
-- ✅ Add to cart functionality - single product (Scenario 3)
-- ✅ Add to cart functionality - multiple products (Scenario 4)
-- ✅ Cart page display and calculations (Scenario 5)
-- ✅ Accessibility features (Scenario 6)
-- ✅ Network and console validation (Scenario 7)
+| Scenario | Description | Automation Status |
+|----------|-------------|-------------------|
+| Scenario 1 | Homepage product browsing | ✓ Automated |
+| Scenario 2 | Product detail page navigation | ✗ Not yet automated |
+| Scenario 3 | Add to cart - single product | ✗ Not yet automated |
+| Scenario 4 | Add to cart - multiple products | ✗ Not yet automated |
+| Scenario 5 | Cart page display and calculations | ✗ Not yet automated |
+| Scenario 6 | Accessibility features | ✗ Not yet automated |
+| Scenario 7 | Network and console validation | ✗ Not yet automated |
 
 ### Visual Evidence
 6 screenshots captured documenting each step:
