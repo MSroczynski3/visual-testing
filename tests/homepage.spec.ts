@@ -50,6 +50,8 @@ test.describe('Homepage - Product Browsing', () => {
       const priceElement = homePage.getProductPrice(product.name);
       await expect(priceElement).toContainText(`$${product.price.toFixed(2)}`);
     }
+
+    await expect(page).toHaveScreenshot({fullPage: true});
   });
 });
 
