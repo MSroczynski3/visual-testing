@@ -1,8 +1,3 @@
-/**
- * Test data constants for the e-commerce application tests.
- * Maintains a single source of truth for expected values.
- */
-
 export const PRODUCTS = [
   { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Classic Leather Wallet', price: 49.99 },
   { id: '550e8400-e29b-41d4-a716-446655440002', name: 'Wireless Bluetooth Headphones', price: 129.99 },
