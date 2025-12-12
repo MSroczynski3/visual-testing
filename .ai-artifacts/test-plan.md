@@ -166,15 +166,15 @@ This document outlines the test scenarios executed using Playwright MCP to valid
 ### Overall Status: ✅ PASS
 
 ### Test Coverage
-| Scenario | Description | Automation Status |
-|----------|-------------|-------------------|
-| Scenario 1 | Homepage product browsing | ✓ Automated |
-| Scenario 2 | Product detail page navigation | ✗ Not yet automated |
-| Scenario 3 | Add to cart - single product | ✗ Not yet automated |
-| Scenario 4 | Add to cart - multiple products | ✗ Not yet automated |
-| Scenario 5 | Cart page display and calculations | ✗ Not yet automated |
-| Scenario 6 | Accessibility features | ✗ Not yet automated |
-| Scenario 7 | Network and console validation | ✗ Not yet automated |
+| Scenario | Description | Automation Status | Test File |
+|----------|-------------|-------------------|-----------|
+| Scenario 1 | Homepage product browsing | ✓ Automated | `tests/homepage.spec.ts` |
+| Scenario 2 | Product detail page navigation | ✓ Automated | `tests/product-detail.spec.ts` |
+| Scenario 3 | Add to cart - single product | ✓ Automated | `tests/add-to-cart.spec.ts` |
+| Scenario 4 | Add to cart - multiple products | ✓ Automated | `tests/add-to-cart.spec.ts` |
+| Scenario 5 | Cart page display and calculations | ✓ Automated | `tests/cart-page.spec.ts` |
+| Scenario 6 | Accessibility features | ✓ Automated | `tests/accessibility.spec.ts` |
+| Scenario 7 | Network and console validation | ✓ Automated | `tests/network-console.spec.ts` |
 
 ### Visual Evidence
 6 screenshots captured documenting each step:
