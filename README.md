@@ -45,16 +45,21 @@ prompts/
 
 ## How to Use
 
+> **Note:** If you fork this repository, update the URLs below to point to your fork.
+
 ### 1. Consume from another repository (Git subtree)
 
 Add this repository as a subtree so prompts exist as real files in your project:
 
-`git subtree add --prefix=prompts \   git@github.com:<your-org-or-user>/prompt-library.git main --squash`
+```bash
+git subtree add --prefix=prompts --squash https://github.com/MSroczynski3/testing-prompts.git main
+```
 
 To update later:
 
-`git subtree pull --prefix=prompts \   git@github.com:<your-org-or-user>/prompt-library.git main --squash`
-
+```bash
+git subtree pull --prefix=prompts --squash https://github.com/MSroczynski3/testing-prompts.git main
+```
 
 ---
 
@@ -62,10 +67,22 @@ To update later:
 
 You can reference individual prompts via raw URLs:
 
-`https://raw.githubusercontent.com/<your-org-or-user>/prompt-library/main/prompts/meta/persona-qa-engineer.md`
+```
+https://raw.githubusercontent.com/MSroczynski3/testing-prompts/main/prompts/meta/plan-drafter.md
+```
 
 This works well for quick experiments or external tools.
 
+---
+
+### 3. Remove the subtree
+
+To undo the import, delete the folder and commit:
+
+```bash
+git rm -r prompts
+git commit -m "Remove prompts subtree"
+```
 
 ---
 
