@@ -13,12 +13,12 @@ export class CartPage extends BasePage {
     super(page);
 
     this.pageHeading = page.getByRole('heading', { name: 'Shopping Cart', level: 1 });
-    this.cartItems = page.getByRole('article');
+    this.cartItems = page.getByRole('listitem');
     this.emptyCartMessage = page.getByText(/your cart is empty/i);
     this.totalPriceElement = page.locator('.cart-total, .total-price').or(
       page.getByText(/total:/i).locator('xpath=following-sibling::*')
     );
-    this.clearCartButton = page.getByRole('button', { name: /clear cart/i });
+    this.clearCartButton = page.getByRole('button', { name: /remove all items from cart/i });
     this.continueShoppingLink = page.getByRole('link', { name: /continue shopping/i });
   }
 
@@ -31,12 +31,8 @@ export class CartPage extends BasePage {
     return this.cartItems;
   }
 
-  async getCartItemsCount(): Promise<number> {
-    return await this.cartItems.count();
-  }
-
   getCartItemByName(productName: string): Locator {
-    return this.page.getByRole('article').filter({ hasText: productName });
+    return this.page.getByRole('listitem').filter({ hasText: productName });
   }
 
   getCartItemNameHeading(productName: string): Locator {
@@ -65,9 +61,9 @@ export class CartPage extends BasePage {
   }
 
   async getTotalPrice(): Promise<string> {
-    const totalText = await this.page.locator('text=/total:?/i').first().textContent();
-    const match = totalText?.match(/\$?(\d+\.?\d*)/);
-    return match ? match[0] : '';
+    // Target the cart total specifically (the strong element in the total paragraph)
+    const totalElement = await this.page.locator('p:has-text("Total:") strong').textContent();
+    return totalElement || '';
   }
 
   async verifyPageLoaded() {

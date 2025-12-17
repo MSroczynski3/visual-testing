@@ -35,7 +35,7 @@ test.describe('Cart Page - Display and Operations', () => {
     await expect(cartPage.pageHeading).toBeVisible();
     await expect(cartPage.pageHeading).toHaveText('Shopping Cart');
 
-    const cartItemsCount = await cartPage.getCartItemsCount();
+    const cartItemsCount = await cartPage.getCartItemCount();
     expect(cartItemsCount).toBe(3);
 
     for (const product of productsToAdd) {
@@ -84,12 +84,12 @@ test.describe('Cart Page - Display and Operations', () => {
 
     await cartPage.goToCart();
 
-    let itemsCount = await cartPage.getCartItemsCount();
+    let itemsCount = await cartPage.getCartItemCount();
     expect(itemsCount).toBe(2);
 
     await cartPage.removeItem(PRODUCTS[0].name);
 
-    itemsCount = await cartPage.getCartItemsCount();
+    itemsCount = await cartPage.getCartItemCount();
     expect(itemsCount).toBe(1);
 
     await expect(cartPage.getCartItemByName(PRODUCTS[0].name)).toBeHidden();
@@ -109,7 +109,7 @@ test.describe('Cart Page - Display and Operations', () => {
 
     await cartPage.goToCart();
 
-    let itemsCount = await cartPage.getCartItemsCount();
+    let itemsCount = await cartPage.getCartItemCount();
     expect(itemsCount).toBe(3);
 
     await cartPage.clearCart();
@@ -143,7 +143,7 @@ test.describe('Cart Page - Display and Operations', () => {
 
     await cartPage.goToCart();
 
-    const itemsCount = await cartPage.getCartItemsCount();
+    const itemsCount = await cartPage.getCartItemCount();
     expect(itemsCount).toBeGreaterThan(0);
 
     await expect(cartPage.getCartItemByName(testProduct.name)).toBeVisible();
@@ -161,7 +161,7 @@ test.describe('Cart Page - Display and Operations', () => {
 
     await cartPage.goToCart();
 
-    const itemsCount = await cartPage.getCartItemsCount();
+    const itemsCount = await cartPage.getCartItemCount();
     expect(itemsCount).toBe(8);
 
     const expectedTotal = PRODUCTS.reduce((sum, p) => sum + p.price, 0);
