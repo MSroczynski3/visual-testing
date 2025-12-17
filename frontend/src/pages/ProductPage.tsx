@@ -76,7 +76,7 @@ export function ProductPage() {
           <div className="product-detail-image-container">
             <img
               src={product.image_url || 'https://picsum.photos/seed/placeholder/400/300'}
-              alt=""
+              alt={`${product.name} product image`}
               className="product-detail-image"
             />
           </div>
