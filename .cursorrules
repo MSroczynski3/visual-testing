@@ -1,0 +1,377 @@
+# Visual Testing Project - Cursor Rules
+
+This project is an e-commerce visual testing application with a React frontend, Node.js backend, and Playwright end-to-end tests.
+
+## Project Structure
+
+- `frontend/` - React TypeScript application (Vite)
+- `backend/` - Node.js TypeScript API server
+- `tests/` - Playwright E2E tests with Page Object Model
+- `tests/pages/` - Page Object classes
+- `tests/fixtures/` - Test data and fixtures
+- `tests/snapshots/` - Visual regression baseline images
+
+## TypeScript Best Practices
+
+### General Rules
+
+- Use strict TypeScript configuration (`strict: true`)
+- Prefer `const` over `let`; never use `var`
+- Use explicit return types for functions
+- Use `readonly` for properties that should not be modified after initialization
+- Prefer interfaces over type aliases for object shapes
+- Use `as const` for literal types and constant arrays
+- Avoid `any` type; use `unknown` when type is truly unknown
+- Use optional chaining (`?.`) and nullish coalescing (`??`)
+
+### Naming Conventions
+
+- Use PascalCase for classes, interfaces, types, and enums
+- Use camelCase for variables, functions, and methods
+- Use UPPER_SNAKE_CASE for constants
+- Prefix interfaces with descriptive names (not `I` prefix)
+- Use descriptive names that convey intent
+
+### Code Style
+
+```typescript
+// Good: Explicit types and readonly properties
+export class BasePage {
+  readonly page: Page;
+  readonly logo: Locator;
+  
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+// Good: Const assertion for constant data
+export const PRODUCTS = [
+  { id: '123', name: 'Product', price: 49.99 },
+] as const;
+
+// Good: Explicit return types
+async function getCount(): Promise<number> {
+  return 0;
+}
+```
+
+## Playwright Best Practices
+
+### Page Object Model (POM)
+
+- Create page classes that extend `BasePage` for shared functionality
+- Define all locators as `readonly` properties in the constructor
+- Keep locators private to the page object; expose actions as methods
+- Use descriptive method names that describe user actions
+- Include `verifyPageLoaded()` method for each page object
+
+```typescript
+// Example Page Object structure
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from './BasePage';
+
+export class ProductPage extends BasePage {
+  readonly productName: Locator;
+  readonly addToCartButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.productName = page.getByRole('heading', { level: 1 });
+    this.addToCartButton = page.getByRole('button', { name: /add.*to cart/i });
+  }
+
+  async verifyPageLoaded() {
+    await expect(this.productName).toBeVisible();
+    await expect(this.addToCartButton).toBeVisible();
+  }
+
+  async addToCart() {
+    await this.addToCartButton.click();
+  }
+}
+```
+
+### Locator Strategies (Priority Order)
+
+1. **Role-based locators** (most preferred - accessible and resilient):
+   ```typescript
+   page.getByRole('button', { name: /add to cart/i })
+   page.getByRole('heading', { level: 1 })
+   page.getByRole('link', { name: /continue shopping/i })
+   page.getByRole('listitem')
+   page.getByRole('article')
+   ```
+
+2. **Test ID locators** (for elements without accessible roles):
+   ```typescript
+   page.getByTestId('cart-badge')
+   ```
+
+3. **Text-based locators** (for unique visible text):
+   ```typescript
+   page.getByText(/your cart is empty/i)
+   ```
+
+4. **Label/placeholder locators** (for form elements):
+   ```typescript
+   page.getByLabel('Email')
+   page.getByPlaceholder('Search products')
+   ```
+
+5. **CSS selectors** (avoid when possible, use only as last resort):
+   ```typescript
+   page.locator('.product-description')
+   ```
+
+### Locator Best Practices
+
+- **Use regex with case-insensitive flag** for text matching:
+  ```typescript
+  // Good: Resilient to case changes
+  page.getByRole('button', { name: /add to cart/i })
+  
+  // Avoid: Brittle exact match
+  page.getByRole('button', { name: 'Add to Cart' })
+  ```
+
+- **Use filter() for compound locators**:
+  ```typescript
+  page.getByRole('listitem').filter({ hasText: productName })
+  page.getByRole('alert').filter({ hasText: /added to cart/i })
+  ```
+
+- **Chain locators for specificity**:
+  ```typescript
+  this.getCartItemByName(productName).getByRole('heading', { level: 2 })
+  this.successBanner.locator('svg').first()
+  ```
+
+### Test Structure
+
+- Use `test.describe()` for grouping related tests
+- Use `test.beforeEach()` for common setup
+- Initialize page objects in `beforeEach` hooks
+- Each test should be independent and not rely on other tests
+- Use descriptive test names that explain the expected behavior
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { HomePage, ProductPage, CartPage } from './pages';
+import { PRODUCTS } from './fixtures/testData';
+
+test.describe('Cart Page - Display and Operations', () => {
+  let homePage: HomePage;
+  let productPage: ProductPage;
+  let cartPage: CartPage;
+
+  test.beforeEach(async ({ page }) => {
+    homePage = new HomePage(page);
+    productPage = new ProductPage(page);
+    cartPage = new CartPage(page);
+  });
+
+  test('should display cart with all items and correct pricing', async ({ page }) => {
+    // Arrange
+    await productPage.gotoProduct(PRODUCTS[0].id);
+    await productPage.addToCart();
+
+    // Act
+    await cartPage.goToCart();
+
+    // Assert
+    await cartPage.verifyPageLoaded();
+    await expect(cartPage.pageHeading).toHaveText('Shopping Cart');
+  });
+});
+```
+
+### Assertions
+
+- Use Playwright's built-in `expect()` with web-first assertions
+- Prefer `toBeVisible()`, `toHaveText()`, `toContainText()` over manual checks
+- Use timeouts only when necessary, prefer auto-waiting
+- Avoid `page.waitForTimeout()` - use proper assertions instead
+
+```typescript
+// Good: Web-first assertions with auto-waiting
+await expect(this.successBanner).toBeVisible({ timeout: 5000 });
+await expect(this.cartBadge).toHaveText(expectedCount.toString());
+await expect(cartItem).toContainText(`$${price.toFixed(2)}`);
+
+// Good: Use waitForURL for navigation
+await this.page.waitForURL('/cart');
+
+// Avoid: Fixed timeouts
+await page.waitForTimeout(1000); // Don't do this
+```
+
+### Visual Testing
+
+- Use `toHaveScreenshot()` for visual regression testing
+- Provide meaningful snapshot names
+- Use `fullPage: true` for complete page captures
+- Store snapshots in `tests/snapshots/` directory
+
+```typescript
+await expect(page).toHaveScreenshot('cart-page-with-items.png', { fullPage: true });
+await expect(page).toHaveScreenshot(`after-adding-product-${i + 1}.png`, { fullPage: true });
+```
+
+### Wait Strategies
+
+- Use `waitForLoadState('networkidle')` for page navigation
+- Use `waitForURL()` for route changes
+- Use assertions for element state changes (auto-waiting)
+- Implement custom wait methods when needed
+
+```typescript
+// Good: Wait for network to settle after navigation
+async goto() {
+  await this.page.goto('/cart');
+  await this.page.waitForLoadState('networkidle');
+}
+
+// Good: Wait for specific state with assertion
+async waitForCartCount(expectedCount: number, timeout: number = 5000): Promise<void> {
+  if (expectedCount === 0) {
+    await expect(this.cartBadge).toBeHidden({ timeout });
+  } else {
+    await expect(this.cartBadge).toHaveText(expectedCount.toString(), { timeout });
+  }
+}
+```
+
+### Test Data Management
+
+- Store test data in `tests/fixtures/` directory
+- Use `as const` for immutable test data
+- Export named constants for reusable values
+
+```typescript
+// tests/fixtures/testData.ts
+export const PRODUCTS = [
+  { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Classic Leather Wallet', price: 49.99 },
+] as const;
+
+export const EXPECTED_PRODUCT_COUNT = 8;
+
+export const PAGE_TITLES = {
+  home: 'Our Products',
+  cart: 'Shopping Cart',
+} as const;
+```
+
+### Error Handling in Tests
+
+- Clear state before tests when needed (localStorage, cookies)
+- Don't catch errors in tests - let them fail naturally
+- Use `test.fail()` annotation for known failing tests
+
+```typescript
+test.beforeEach(async ({ page }) => {
+  // Clear cart from localStorage before each test
+  await page.goto('/');
+  await page.evaluate(() => localStorage.clear());
+});
+```
+
+## Common Anti-Patterns to Avoid
+
+### Don't Do This
+
+```typescript
+// ❌ Using XPath when better alternatives exist
+page.locator('//button[@class="btn-primary"]')
+
+// ❌ Using arbitrary timeouts
+await page.waitForTimeout(2000);
+
+// ❌ Using CSS selectors when role-based locators work
+page.locator('.add-to-cart-button')
+
+// ❌ Hardcoding text that may change
+page.getByText('Add to Cart')
+
+// ❌ Using nth() without filtering first
+page.locator('button').nth(3)
+
+// ❌ Not waiting for state changes
+button.click();
+expect(counter.textContent()).toBe('1'); // May fail due to race condition
+
+// ❌ Using any type
+const data: any = await response.json();
+```
+
+### Do This Instead
+
+```typescript
+// ✅ Use role-based locators
+page.getByRole('button', { name: /add to cart/i })
+
+// ✅ Use web-first assertions that auto-wait
+await expect(element).toBeVisible();
+
+// ✅ Use regex for resilient text matching
+page.getByRole('button', { name: /add.*cart/i })
+
+// ✅ Filter then select
+page.getByRole('listitem').filter({ hasText: 'Product Name' }).getByRole('button')
+
+// ✅ Await assertions properly
+await button.click();
+await expect(counter).toHaveText('1');
+
+// ✅ Use proper types
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+}
+const data: Product = await response.json();
+```
+
+## File Organization
+
+```
+tests/
+├── fixtures/
+│   └── testData.ts         # Test data and constants
+├── pages/
+│   ├── index.ts            # Barrel export for all page objects
+│   ├── BasePage.ts         # Shared page functionality
+│   ├── HomePage.ts         # Home page object
+│   ├── ProductPage.ts      # Product detail page object
+│   └── CartPage.ts         # Cart page object
+├── snapshots/              # Visual regression baselines
+├── homepage.spec.ts        # Homepage tests
+├── product-detail.spec.ts  # Product page tests
+├── cart-page.spec.ts       # Cart page tests
+└── add-to-cart.spec.ts     # Add to cart flow tests
+```
+
+## Configuration
+
+- Playwright config is in `playwright.config.ts`
+- Base URL: `http://localhost:3000`
+- Test directory: `./tests`
+- Snapshot directory: `./tests/snapshots`
+- Reporter: HTML
+- Trace: On first retry
+
+## Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with UI mode
+npm run test:ui
+
+# Run tests in debug mode
+npm run test:debug
+
+# View test report
+npm run test:report
+```
