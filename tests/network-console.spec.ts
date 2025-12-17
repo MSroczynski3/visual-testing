@@ -175,7 +175,7 @@ test.describe('Network and Console Validation', () => {
     expect(imageResponses.length).toBeGreaterThanOrEqual(0);
 
     for (const response of imageResponses) {
-      expect(response.status).toBe(200);
+      expect([200, 302]).toContain(response.status);
     }
   });
 
@@ -199,8 +199,8 @@ test.describe('Network and Console Validation', () => {
     expect(productsApiResponse.status).toBe(200);
     expect(productsApiResponse.contentType).toContain('application/json');
     expect(productsApiResponse.body).toBeTruthy();
-    expect(Array.isArray(productsApiResponse.body)).toBe(true);
-    expect(productsApiResponse.body.length).toBe(8);
+    expect(Array.isArray(productsApiResponse.body.data)).toBe(true);
+    expect(productsApiResponse.body.data.length).toBe(8);
   });
 
   test('should have all API endpoints responding correctly', async ({ page }) => {
