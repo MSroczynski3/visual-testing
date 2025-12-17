@@ -7,6 +7,10 @@ test.describe('Add to Cart - Single and Multiple Products', () => {
   let productPage: ProductPage;
 
   test.beforeEach(async ({ page }) => {
+    // Clear cart from localStorage before each test
+    await page.goto('/');
+    await page.evaluate(() => localStorage.clear());
+    
     homePage = new HomePage(page);
     productPage = new ProductPage(page);
   });
@@ -126,7 +130,10 @@ test.describe('Add to Cart - Single and Multiple Products', () => {
     let cartCount = await productPage.getCartItemCount();
     expect(cartCount).toBe(1);
 
-    await page.reload();
+    // Dismiss banner to be able to click button again
+    await productPage.dismissSuccessBanner();
+    
+    // Add the same product again - should increment quantity
     await productPage.addToCart();
 
     cartCount = await productPage.getCartItemCount();

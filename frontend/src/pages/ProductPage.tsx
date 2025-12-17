@@ -85,12 +85,10 @@ export function ProductPage() {
             <h1 id="product-title" className="product-detail-name">
               {product.name}
             </h1>
-            <p
-              className="product-detail-price"
-              aria-label={`Price: ${product.price} dollars`}
-            >
-              ${product.price.toFixed(2)}
-            </p>
+            <dl className="product-detail-price">
+              <dt className="sr-only">Price</dt>
+              <dd>${product.price.toFixed(2)}</dd>
+            </dl>
             <p className="product-detail-description">{product.description}</p>
             <button
               onClick={handleAddToCart}

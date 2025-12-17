@@ -16,10 +16,10 @@ export class ProductPage extends BasePage {
     super(page);
 
     this.productName = page.getByRole('heading', { level: 1 });
-    this.productPrice = page.locator('.product-price');
+    this.productPrice = page.getByRole('definition');
     this.productDescription = page.locator('.product-description');
     this.productImage = page.getByRole('img', { name: /product image/i });
-    this.addToCartButton = page.getByRole('button', { name: /add to cart/i });
+    this.addToCartButton = page.getByRole('button', { name: /add.*to cart/i });
     this.backToProductsLink = page.getByRole('link', { name: /back to products/i });
     this.successBanner = page.getByRole('alert').filter({ hasText: /added to cart/i });
     this.successMessage = page.getByText(/item added to cart successfully/i);
@@ -32,8 +32,14 @@ export class ProductPage extends BasePage {
   }
 
   async addToCart() {
+    // Get current count before adding
+    const currentCount = await this.getCartItemCount();
+    
     await this.addToCartButton.click();
     await expect(this.successBanner).toBeVisible({ timeout: 5000 });
+    
+    // Wait for cart badge to update
+    await this.waitForCartCount(currentCount + 1);
   }
 
   async goBackToProducts() {

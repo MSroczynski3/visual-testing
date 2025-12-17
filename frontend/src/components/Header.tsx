@@ -36,7 +36,7 @@ export function Header() {
           >
             <ShoppingCart aria-hidden="true" size={24} />
             {totalItems > 0 && (
-              <span className="cart-badge" aria-hidden="true">
+              <span className="cart-badge" aria-hidden="true" data-testid="cart-badge">
                 {totalItems}
               </span>
             )}
