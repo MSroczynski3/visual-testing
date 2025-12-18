@@ -15,7 +15,7 @@ export function SuccessBanner() {
       className="success-banner"
     >
       <div className="success-banner-content">
-        <CheckCircle aria-hidden="true" size={20} />
+        <CheckCircle aria-label="Success" size={20} />
         <span>Item added to cart successfully!</span>
       </div>
       <button
@@ -23,7 +23,7 @@ export function SuccessBanner() {
         className="success-banner-close"
         aria-label="Dismiss notification"
       >
-        <X aria-hidden="true" size={18} />
+        <X aria-label="Close" size={18} />
       </button>
     </div>
   );

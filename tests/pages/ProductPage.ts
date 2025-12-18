@@ -8,9 +8,6 @@ export class ProductPage extends BasePage {
   readonly productImage: Locator;
   readonly addToCartButton: Locator;
   readonly backToProductsLink: Locator;
-  readonly successBanner: Locator;
-  readonly successMessage: Locator;
-  readonly dismissBannerButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -21,14 +18,22 @@ export class ProductPage extends BasePage {
     this.productImage = page.getByRole('img', { name: /.*product image/i });
     this.addToCartButton = page.getByRole('button', { name: /add.*to cart/i });
     this.backToProductsLink = page.getByRole('link', { name: /back to products/i });
-    this.successBanner = page.getByRole('alert').filter({ hasText: /added to cart/i });
-    this.successMessage = page.getByText(/item added to cart successfully/i);
-    this.dismissBannerButton = page.getByRole('button', { name: /dismiss/i });
+  }
+
+  bannerLocators() {
+    const banner = this.page.getByRole('alert').filter({ hasText: "Item added to cart successfully!" });
+    const checkmarkIcon = this.page.getByRole('img', { name: "Success" });
+    const closeButton = this.page.getByRole('button', { name: "Dismiss notification" });
+    return {
+      banner,
+      checkmarkIcon,
+      closeButton,
+    };
   }
 
   async gotoProduct(productId: string) {
     await this.page.goto(`/product/${productId}`);
-    await this.page.waitForLoadState('networkidle');
+    await this.verifyPageLoaded();
   }
 
   async addToCart() {
@@ -36,7 +41,7 @@ export class ProductPage extends BasePage {
     const currentCount = await this.getCartItemCount();
     
     await this.addToCartButton.click();
-    await expect(this.successBanner).toBeVisible({ timeout: 5000 });
+    await expect(this.bannerLocators().banner).toBeVisible({ timeout: 5000 });
     
     // Wait for cart badge to update
     await this.waitForCartCount(currentCount + 1);
@@ -63,16 +68,14 @@ export class ProductPage extends BasePage {
   }
 
   async verifySuccessBanner() {
-    await expect(this.successBanner).toBeVisible();
-    await expect(this.successMessage).toBeVisible();
-    const bannerIcons = this.successBanner.locator('svg');
-    await expect(bannerIcons.first()).toBeVisible();
-    await expect(this.dismissBannerButton).toBeVisible();
+    await expect(this.bannerLocators().banner).toBeVisible();
+    await expect(this.bannerLocators().checkmarkIcon).toBeVisible();
+    await expect(this.bannerLocators().closeButton).toBeVisible();
   }
 
   async dismissSuccessBanner() {
-    await this.dismissBannerButton.click();
-    await expect(this.successBanner).toBeHidden();
+    await this.bannerLocators().closeButton.click();
+    await expect(this.bannerLocators().banner).toBeHidden();
   }
 }
 

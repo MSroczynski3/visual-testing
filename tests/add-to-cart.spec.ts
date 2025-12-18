@@ -18,47 +18,28 @@ test.describe('Add to Cart - Single and Multiple Products', () => {
   test('should add single product to cart with visual feedback', async ({ page }) => {
     const testProduct = PRODUCTS[0];
     await productPage.gotoProduct(testProduct.id);
-    await productPage.verifyPageLoaded();
 
     let cartCount = await productPage.getCartItemCount();
     expect(cartCount).toBe(0);
 
     await productPage.addToCart();
-
     await productPage.verifySuccessBanner();
-
-    await expect(productPage.successMessage).toBeVisible();
-    await expect(productPage.successMessage).toHaveText(/item added to cart successfully/i);
-
-    const checkmarkIcon = productPage.successBanner.locator('svg').first();
-    await expect(checkmarkIcon).toBeVisible();
-
-    await expect(productPage.dismissBannerButton).toBeVisible();
 
     cartCount = await productPage.getCartItemCount();
     expect(cartCount).toBe(1);
 
     await expect(page).toHaveScreenshot('after-adding-single-product.png', { fullPage: true });
-
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
-        throw new Error(`Console error: ${msg.text()}`);
-      }
-    });
   });
 
   test('should dismiss success notification', async ({ page }) => {
     const testProduct = PRODUCTS[0];
     await productPage.gotoProduct(testProduct.id);
-    await productPage.verifyPageLoaded();
 
     await productPage.addToCart();
-    await expect(productPage.successBanner).toBeVisible();
 
+    await productPage.verifySuccessBanner();
     await productPage.dismissSuccessBanner();
-
-    await expect(productPage.successBanner).toBeHidden();
-  });
+    });
 
   test('should add multiple products to cart and increment count correctly', async ({ page }) => {
     const productsToAdd = [
@@ -73,29 +54,26 @@ test.describe('Add to Cart - Single and Multiple Products', () => {
     let cartCount = await homePage.getCartItemCount();
     expect(cartCount).toBe(0);
 
-    for (let i = 0; i < productsToAdd.length; i++) {
-      const product = productsToAdd[i];
+    for (const [i, product] of productsToAdd.entries()) {
+      await test.step(`Add product ${i + 1}: ${product.name}`, async () => {
+        await productPage.gotoProduct(product.id);
+        await productPage.addToCart();
+        await productPage.verifySuccessBanner();
 
-      await productPage.gotoProduct(product.id);
-      await productPage.verifyPageLoaded();
-
-      await productPage.addToCart();
-
-      await productPage.verifySuccessBanner();
-
-      expectedCartCount++;
-      cartCount = await productPage.getCartItemCount();
-      expect(cartCount).toBe(expectedCartCount);
-
-      await expect(page).toHaveScreenshot(`after-adding-product-${i + 1}.png`, { fullPage: true });
-
-      if (i < productsToAdd.length - 1) {
-        await productPage.goBackToProducts();
-        await homePage.verifyPageLoaded();
-
-        cartCount = await homePage.getCartItemCount();
+        expectedCartCount++;
+        cartCount = await productPage.getCartItemCount();
         expect(cartCount).toBe(expectedCartCount);
-      }
+
+        await expect(page).toHaveScreenshot(`after-adding-product-${i + 1}.png`, { fullPage: true });
+
+        if (i < productsToAdd.length - 1) {
+          await productPage.goBackToProducts();
+          await homePage.verifyPageLoaded();
+
+          cartCount = await homePage.getCartItemCount();
+          expect(cartCount).toBe(expectedCartCount);
+        }
+      });
     }
 
     cartCount = await productPage.getCartItemCount();
